@@ -5,7 +5,6 @@ import io
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.filters import Command
 from aiogram.types import Message
-from aiohttp.web_fileresponse import content_type
 from rembg import remove
 from PIL import Image
 
@@ -46,7 +45,12 @@ async def remove_bg_handler(message: types.Message, bot: Bot):
         file = await bot.get_file(photo.file_id)
         file_path = file.file_path
 
+        file_info = await bot.get_file(photo.file_id)
+        file_path = file_info.file_path
+
+        destination = f"photos/{photo.file_id}.jpg"
         image_bytes = await bot.download(file)
+        await bot.download(file=photo, destination=destination)
         image = Image.open(io.BytesIO(image_bytes.read()))
 
         output_image = remove(image)
