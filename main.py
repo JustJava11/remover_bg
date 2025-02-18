@@ -41,21 +41,23 @@ Just send me a photo!"""
 
 @router.message()
 async def remove_bg_handler(message: types.Message, bot: Bot):
-    photo = message.photo[-1]
-    file = await bot.get_file(photo.file_id)
-    file_path = file.file_path
+    if message.photo:
+        photo = message.photo[-1]
+        file = await bot.get_file(photo.file_id)
+        file_path = file.file_path
 
-    image_bytes = await bot.download(file)
-    image = Image.open(io.BytesIO(image_bytes.read()))
+        image_bytes = await bot.download(file)
+        image = Image.open(io.BytesIO(image_bytes.read()))
 
-    output_image = remove(image)
+        output_image = remove(image)
 
-    output_io = io.BytesIO()
-    output_image.save(output_io, format="PNG")
-    output_io.seek(0)
+        output_io = io.BytesIO()
+        output_image.save(output_io, format="PNG")
+        output_io.seek(0)
 
-    await message.answer_photo(types.BufferedInputFile(output_io.getvalue(), filename="output.png"))
-
+        await message.answer_photo(types.BufferedInputFile(output_io.getvalue(), filename="output.png"))
+    else:
+        await message.reply('This is not photo bru')
 async def main():
     bot = Bot(TOKEN)
     dp = Dispatcher()
